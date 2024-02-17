@@ -107,3 +107,20 @@ resource "azurerm_linux_virtual_machine" "main" {
     caching              = "ReadWrite"
   }
 }
+
+resource "azurerm_dev_test_global_vm_shutdown_schedule" "main" {
+  virtual_machine_id = azurerm_linux_virtual_machine.main.id
+  location           = azurerm_resource_group.main.location
+  enabled            = true
+
+  daily_recurrence_time = "1800"
+  timezone              = "Central Standard Time"
+
+  notification_settings {
+    enabled         = false
+  }
+}
+
+output "vm_public_ip" {
+  value = azurerm_linux_virtual_machine.main.public_ip_address
+}
