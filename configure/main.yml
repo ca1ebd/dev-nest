@@ -1,0 +1,40 @@
+---
+- name: Configure Dev Environment
+  hosts: all
+  become: true
+  roles:
+    - geerlingguy.docker
+
+  tasks:
+  - name: Add the user 'server' with a bash shell
+    become: true
+    ansible.builtin.user:
+      name: server
+      shell: /bin/bash
+      groups: sudo
+      append: yes
+      password: '*'
+
+  - name: add key for user
+    become: true
+    ansible.posix.authorized_key:
+      user: server
+      key: "{{ lookup('file', '../keys/id_rsa.pub') }}"
+
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /home/server/dev-env
+      state: directory
+      mode: '0755'
+      owner: server
+
+  - name: copy docker compose
+    ansible.builtin.copy:
+      src: files/docker-compose.yml
+      dest: /home/server/dev-env/docker-compose.yml
+      owner: server
+
+  - name: Create and start services
+    community.docker.docker_compose_v2:
+      project_src: /home/server/dev-env/
+    register: output

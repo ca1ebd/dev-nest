@@ -1,7 +1,12 @@
+# keys
 keys/
 environment.src
 
+# terraform
 .terraform*
 *.lock
 *.tfstate*
+
+# python
+env/
 
